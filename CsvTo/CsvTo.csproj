@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp1.0;netcoreapp1.1;netstandard2.0;netstandard2.1;NET45;NET451;NET452;NET46;NET461;NET462;NET47;NET471;NET472;NET48</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>This package is used to convert csv file or stream to datatable/array/Object(Ienumerable), support csv with or without header, do not support type with complex type property.</Description>
+    <PackageTags>Convert csv file or stream to datatable/array/Object(Ienumerable).</PackageTags>
+    <Authors>Naijia Wu</Authors>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    
+  </PropertyGroup>
+
+</Project>
