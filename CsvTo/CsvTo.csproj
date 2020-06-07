@@ -8,8 +8,17 @@
     <Authors>Naijia Wu</Authors>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageId>CsvTo_NaijiaWu</PackageId>
+    <PackageId>CsvTo</PackageId>
     
+    <RepositoryUrl>https://github.com/codenjwu/CsvTo</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
 </Project>
