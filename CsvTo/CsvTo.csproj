@@ -8,6 +8,7 @@
     <Authors>Naijia Wu</Authors>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>CsvTo_NaijiaWu</PackageId>
     
   </PropertyGroup>
 
