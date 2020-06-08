@@ -35,7 +35,6 @@ namespace CsvTo
             {
                 var header = res.Last();
                 res.RemoveAt(res.Count - 1);
-                res.Insert(0, header);
             }
             return res;
         }

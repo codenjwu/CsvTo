@@ -8,17 +8,30 @@ namespace CsvTo
 {
     public class CsvToIEnumerable<T> where T : new()
     {
+        string _filePath;
+        bool _hasHeader;
+        Stream _fileStream;
+        public CsvToIEnumerable(string filePath, bool hasHeader)
+        {
+            _filePath = filePath;
+            _hasHeader = hasHeader;
+        }
+        public CsvToIEnumerable(Stream fileStream, bool hasHeader)
+        {
+            _fileStream = fileStream;
+            _hasHeader = hasHeader;
+        }
         private readonly CsvToIEnumerableHandler<T> csvHandler = new CsvToIEnumerableHandler<T>();
 
-        public IEnumerable<T> ConvertFromFile(string filePath, bool hasHeader)
+        public IEnumerable<T> ConvertFromFile()
         {
-            foreach (var item in csvHandler.Handler(filePath, hasHeader, withHeader, WithoutHeader, elementHandler))
+            foreach (var item in csvHandler.Handler(_filePath, _hasHeader, withHeader, WithoutHeader, elementHandler))
                 yield return item;
         }
 
-        public IEnumerable<T> ConvertFromStream(Stream fileStream, bool hasHeader)
+        public IEnumerable<T> ConvertFromStream()
         {
-            foreach (var item in csvHandler.Handler(fileStream, hasHeader, withHeader, WithoutHeader, elementHandler))
+            foreach (var item in csvHandler.Handler(_fileStream, _hasHeader, withHeader, WithoutHeader, elementHandler))
                 yield return item;
         }
         private void WithoutHeader(StreamReader reader)

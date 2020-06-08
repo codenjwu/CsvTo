@@ -23,7 +23,7 @@ namespace CsvTo
         public IEnumerator<string> GetEnumerator()
         {
             //yield return stk.Pop(); 
-            if(string.IsNullOrWhiteSpace(_filePath))
+            if(!string.IsNullOrWhiteSpace(_filePath))
              return ReverseHandler(_filePath);
             return ReverseHandler(_fileStream);
         }

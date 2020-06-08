@@ -7,7 +7,20 @@ namespace CsvTo
 {
     public class CsvToDatatable
     {
-        //private static readonly Regex csvParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+        string _filePath;
+        bool _hasHeader;
+        Stream _fileStream;
+        public CsvToDatatable(string filePath, bool hasHeader)
+        {
+            _filePath = filePath;
+            _hasHeader = hasHeader;
+        }
+        public CsvToDatatable(Stream fileStream, bool hasHeader)
+        {
+            _fileStream = fileStream;
+            _hasHeader = hasHeader;
+        }
+
         private readonly CsvHandler<DataTable> csvHandler = new CsvHandler<DataTable>();
         /// <summary>
         /// 
@@ -15,10 +28,10 @@ namespace CsvTo
         /// <param name="filePath"></param>
         /// <param name="hasHeader"></param>
         /// <returns></returns>
-        public async Task<DataTable> ConvertFromFile(string filePath, bool hasHeader)
+        public async Task<DataTable> ConvertFromFile()
         {
             DataTable dt = new DataTable();
-            await csvHandler.Handler(dt, filePath, hasHeader, WithHeader, WithoutHeader, ElementHandler);
+            await csvHandler.Handler(dt, _filePath, _hasHeader, WithHeader, WithoutHeader, ElementHandler);
             return dt;
         }
 
@@ -29,10 +42,10 @@ namespace CsvTo
         /// <param name="fileStream"></param>
         /// <param name="hasHeader"></param>
         /// <returns></returns>
-        public async Task<DataTable> ConvertFromStream(Stream fileStream, bool hasHeader)
+        public async Task<DataTable> ConvertFromStream()
         {
             DataTable dt = new DataTable();
-            await csvHandler.Handler(dt, fileStream, hasHeader, WithHeader, WithoutHeader, ElementHandler);
+            await csvHandler.Handler(dt, _fileStream, _hasHeader, WithHeader, WithoutHeader, ElementHandler);
             return dt;
         }
 

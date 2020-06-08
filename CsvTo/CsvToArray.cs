@@ -8,18 +8,31 @@ namespace CsvTo
 {
     public class CsvToArray
     {
+        string _filePath;
+        bool _hasHeader;
+        Stream _fileStream;
+        public CsvToArray(string filePath, bool hasHeader)
+        {
+            _filePath = filePath;
+            _hasHeader = hasHeader;
+        }
+        public CsvToArray(Stream fileStream, bool hasHeader)
+        {
+            _fileStream = fileStream;
+            _hasHeader = hasHeader;
+        }
         private readonly CsvHandler<List<string[]>> csvHandler = new CsvHandler<List<string[]>>();
-        public async Task<List<string[]>> ConvertFromFile(string filePath, bool hasHeader)
+        public async Task<List<string[]>> ConvertFromFile()
         {
             List<string[]> vs = new List<string[]>();
-            await csvHandler.Handler(vs, filePath, hasHeader, withHeader, withoutHeader, elementHandler);
+            await csvHandler.Handler(vs, _filePath, _hasHeader, withHeader, withoutHeader, elementHandler);
             return vs;
         }
 
-        public async Task<List<string[]>> ConvertFromStream(Stream fileStream, bool hasHeader)
+        public async Task<List<string[]>> ConvertFromStream()
         {
             List<string[]> vs = new List<string[]>();
-            await csvHandler.Handler(vs, fileStream, hasHeader, withHeader, withoutHeader, elementHandler);
+            await csvHandler.Handler(vs, _fileStream, _hasHeader, withHeader, withoutHeader, elementHandler);
             return vs;
         }
 
