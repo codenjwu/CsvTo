@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;NET45;NET451;NET452;NET46;NET461;NET462;NET47;NET471;NET472;NET48</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>This package is used to convert csv file or stream to datatable/array/Object(Ienumerable), support csv with or without header, do not support type with complex type property.</Description>
-    <PackageTags>Convert csv file or stream to datatable/array/Object(Ienumerable).</PackageTags>
+    <Description>This package is used to convert csv file or stream to datatable/array/Object(Ienumerable), support reverse convert , support csv with or without header, do not support type with complex type property.</Description>
+    <PackageTags>csv, datatable, array, Object(Ienumerable), reverse</PackageTags>
     <Authors>Naijia Wu</Authors>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -16,9 +16,11 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    
+    <Version>1.1.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
