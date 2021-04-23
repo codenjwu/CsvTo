@@ -1,51 +1,90 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTo
 {
-    internal class CsvHandler<T>
+    internal class CsvHandler : IEnumerable<string>
     {
-        internal async Task<T> Handler(T result, string filePath, bool hasHeader, Func<T, StreamReader, Task> withHeader, Func<T, StreamReader, Task> withoutHeader, Action<T, string[]> elementHandler)
+        string _filePath = null;
+        Stream _fileStream;
+        internal Parser Parser;
+
+        public CsvHandler(string filePath, string delimiter = ",", string escape = "\"")
         {
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                if (hasHeader)
-                    await withHeader(result, reader);
-                else
-                    await withoutHeader(result, reader);
-                while (!reader.EndOfStream)
-                {
-                    var line = await reader.ReadLineAsync();
-                    string[] elements = Parser.CsvParser.Split(line);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        elementHandler(result, elements);
-                    }
-                }
-            }
-            return result;
+            _filePath = filePath;
+            Parser = new Parser(delimiter, escape);
         }
-        internal async Task<T> Handler(T result, Stream fileStream, bool hasHeader, Func<T, StreamReader, Task> withHeader, Func<T, StreamReader, Task> withoutHeader, Action<T, string[]> elementHandler)
+        public CsvHandler(Stream fileStream, string delimiter = ",", string escape = "\"")
         {
-            using (StreamReader reader = new StreamReader(fileStream))
+            _fileStream = fileStream;
+            Parser = new Parser(delimiter, escape);
+        }
+        public IEnumerator<string> GetEnumerator()
+        {
+            if (!string.IsNullOrWhiteSpace(_filePath))
+                return FileHandler(_filePath);
+            return StreamHandler(_fileStream);
+        }
+        internal IEnumerator<string> FileHandler(string filePath)
+        {
+            using (var reader = new StreamReader(filePath))
             {
-                if (hasHeader)
-                    await withHeader(result, reader);
-                else
-                    await withoutHeader(result, reader);
+                var sb = new StringBuilder();
                 while (!reader.EndOfStream)
                 {
-                    var line = await reader.ReadLineAsync();
-                    string[] elements = Parser.CsvParser.Split(line);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
                     {
-                        elementHandler(result, elements);
+                        sb.Append(l);
+                        yield return sb.ToString();
+                        sb.Clear(); //clear sb for next loop
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
                     }
                 }
             }
-            return result;
+        }
+        internal IEnumerator<string> StreamHandler(Stream fileStream)
+        {
+            using (var reader = new StreamReader(fileStream))
+            {
+                var sb = new StringBuilder();
+                while (!reader.EndOfStream)
+                {
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
+                    {
+                        sb.Append(l);
+                        yield return sb.ToString();
+                        sb.Clear(); //clear sb for next loop
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
+                    }
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

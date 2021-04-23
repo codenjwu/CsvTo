@@ -5,110 +5,68 @@ using System.Linq;
 
 namespace CsvTo
 {
-    public class CsvToIEnumerableReverse<T> where T : new()
+    public class CsvToIEnumerableReverse 
     {
-        string _filePath;
-        bool _hasHeader;
-        Stream _fileStream;
-        Dictionary<int, string> _header;
-        public CsvToIEnumerableReverse(string filePath, bool hasHeader)
+        public IEnumerable<string[]> ConvertFromFile(string filePath, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
-            _filePath = filePath;
-            _hasHeader = hasHeader;
-        }
-        public CsvToIEnumerableReverse(Stream fileStream, bool hasHeader)
-        {
-            _fileStream = fileStream;
-            _hasHeader = hasHeader;
-        }
-        public IEnumerable<T> ConvertFromFile()
-        {
-            CsvReverseHandler handler = new CsvReverseHandler(_filePath);
-            if (!_hasHeader)
+            CsvReverseHandler handler = new CsvReverseHandler(filePath, delimiter, escape);
+            if (!hasHeader)
             {
                 foreach (var item in handler)
                 {
-                    var elements = Parser.CsvParser.Split(item);
+                    var elements = handler.Parser.Split(item);
 
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
-                        T result = new T();
-                        elementHandler(result, elements);
-                        yield return result;
+                        yield return elements;
                     }
                 }
             }
             else
             {
-                _header = Parser.CsvParser.Split(handler.Last()).Select((v, i) => new { key = i, value = v }).ToDictionary(k => k.key, v => v.value);
-                for (int i = 0; i < handler.Count() - 1; i++)
+                var tmpQueue = new Queue<string[]>();
+                var er = handler.GetEnumerator();
+                while (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(handler.ElementAt(i));
+                    var elements = handler.Parser.Split(er.Current);
+
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
-                        T result = new T();
-                        elementHandler(result, elements);
-                        yield return result;
+                        tmpQueue.Enqueue(elements);
+                        if (tmpQueue.Count > 1)
+                           yield return tmpQueue.Dequeue();
                     }
                 }
             }
         }
-        public IEnumerable<T> ConvertFromStream()
+        public IEnumerable<string[]> ConvertFromStream(Stream fileStream, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
-            CsvReverseHandler handler = new CsvReverseHandler(_fileStream);
-            if (!_hasHeader)
+            CsvReverseHandler handler = new CsvReverseHandler(fileStream, delimiter, escape);
+            if (!hasHeader)
             {
                 foreach (var item in handler)
                 {
-                    var elements = Parser.CsvParser.Split(item);
+                    var elements = handler.Parser.Split(item);
 
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
-                        T result = new T();
-                        elementHandler(result, elements);
-                        yield return result;
+                        yield return elements;
                     }
                 }
             }
             else
             {
-                _header = Parser.CsvParser.Split(handler.Last()).Select((v, i) => new { key = i, value = v }).ToDictionary(k => k.key, v => v.value);
-                for (int i = 0; i < handler.Count() - 1; i++)
+                var tmpQueue = new Queue<string[]>();
+                var er = handler.GetEnumerator();
+                while (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(handler.ElementAt(i));
+                    var elements = handler.Parser.Split(er.Current);
+
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
-                        T result = new T();
-                        elementHandler(result, elements);
-                        yield return result;
-                    }
-                }
-            }
-        }
-
-        private void elementHandler(T result, string[] elements)
-        {
-            var ty = typeof(T);
-            var props = ty.GetProperties();
-            if (_hasHeader)
-            {
-                for (int i = 0; i < _header.Count(); i++)
-                {
-                    var h = _header.ElementAt(i);
-                    //prots[i].SetValue(result, Convert.ChangeType(elements[i], prots[i].PropertyType));
-                    var prop = ty.GetProperty(h.Value, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                    if (prop != null)
-                        prop.SetValue(result, TypeConverter.ConvertType(elements[h.Key], prop.PropertyType));
-                }
-            }
-            else
-            {
-                foreach (var prop in props)
-                {
-                    var attr = prop.GetCustomAttributes(typeof(CsvColumnIndexAttribute), false).FirstOrDefault() as CsvColumnIndexAttribute;
-                    if (attr != null)
-                    {
-                        prop.SetValue(result, Convert.ChangeType(elements[attr.ColumnIndex - 1], prop.PropertyType));
+                        tmpQueue.Enqueue(elements);
+                        if (tmpQueue.Count > 1)
+                            yield return tmpQueue.Dequeue();
                     }
                 }
             }
