@@ -6,70 +6,47 @@ using System.Text;
 
 namespace CsvTo
 {
-    public class CsvToIEnumerable<T> where T : new()
+    public class CsvToIEnumerable
     {
-        string _filePath;
-        bool _hasHeader;
-        Stream _fileStream;
-        public CsvToIEnumerable(string filePath, bool hasHeader)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="hasHeader"></param>
+        /// <returns></returns>
+        public IEnumerable<string[]> ConvertFromFile(string filePath, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
-            _filePath = filePath;
-            _hasHeader = hasHeader;
-        }
-        public CsvToIEnumerable(Stream fileStream, bool hasHeader)
-        {
-            _fileStream = fileStream;
-            _hasHeader = hasHeader;
-        }
-        private readonly CsvToIEnumerableHandler<T> csvHandler = new CsvToIEnumerableHandler<T>();
-
-        public IEnumerable<T> ConvertFromFile()
-        {
-            foreach (var item in csvHandler.Handler(_filePath, _hasHeader, withHeader, WithoutHeader, elementHandler))
-                yield return item;
-        }
-
-        public IEnumerable<T> ConvertFromStream()
-        {
-            foreach (var item in csvHandler.Handler(_fileStream, _hasHeader, withHeader, WithoutHeader, elementHandler))
-                yield return item;
-        }
-        private void WithoutHeader(StreamReader reader)
-        {
-            csvHandler.Header = Parser.CsvParser.Split(reader.ReadLineAsync().GetAwaiter().GetResult()).Select((v, i) => new { key = i, value = v }).ToDictionary(k => k.key, v => v.value);
-            reader.BaseStream.Position = 0;
-            reader.DiscardBufferedData();
-        }
-        private void elementHandler(T result, bool HasHeader, string[] elements)
-        {
-            var ty = typeof(T);
-            var props = ty.GetProperties();
-            if (HasHeader)
+            CsvHandler csvHandler = new CsvHandler(filePath, delimiter, escape);
+            IEnumerable<string[]> cl = new List<string[]>();
+            var er = csvHandler.GetEnumerator();
+            if (hasHeader)
             {
-                for (int i = 0; i < csvHandler.Header.Count; i++)
-                {
-                    var h = csvHandler.Header.ElementAt(i);
-                    var prop = ty.GetProperty(h.Value, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                    if (prop != null)
-                        prop.SetValue(result, TypeConverter.ConvertType(elements[h.Key], prop.PropertyType));
-                }
+                er.MoveNext();
             }
-            else
+            while (er.MoveNext())
             {
-                foreach (var prop in props)
-                {
-                    var attr = prop.GetCustomAttributes(typeof(CsvColumnIndexAttribute), false).FirstOrDefault() as CsvColumnIndexAttribute;
-                    if (attr != null)
-                    {
-                        prop.SetValue(result, Convert.ChangeType(elements[attr.ColumnIndex - 1], prop.PropertyType));
-                    }
-                }
+                var elements = csvHandler.Parser.Split(er.Current);
+                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    cl.Append(elements);
             }
+            return cl;
         }
-
-        private void withHeader(StreamReader reader)
+        public IEnumerable<string[]> ConvertFromStream(Stream fileStream, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
-            csvHandler.Header = Parser.CsvParser.Split(reader.ReadLineAsync().GetAwaiter().GetResult()).Select((v, i) => new { key = i, value = v }).ToDictionary(k => k.key, v => v.value);
+            CsvHandler csvHandler = new CsvHandler(fileStream, delimiter, escape);
+            IEnumerable<string[]> cl = new List<string[]>();
+            var er = csvHandler.GetEnumerator();
+            if (hasHeader)
+            {
+                er.MoveNext();
+            }
+            while (er.MoveNext())
+            {
+                var elements = csvHandler.Parser.Split(er.Current);
+                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    cl.Append(elements);
+            }
+            return cl;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 
@@ -6,81 +7,110 @@ namespace CsvTo
 {
     public class CsvToDatatableReverse
     {
-        string _filePath;
-        bool _hasHeader;
-        Stream _fileStream;
-        public CsvToDatatableReverse(string filePath, bool hasHeader)
+        public DataTable ConvertFromFile(string filePath, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
-            _filePath = filePath;
-            _hasHeader = hasHeader;
-        }
-        public CsvToDatatableReverse(Stream fileStream, bool hasHeader)
-        {
-            _fileStream = fileStream;
-            _hasHeader = hasHeader;
-        }
-        public DataTable ConvertFromFile()
-        {
+            CsvReverseHandler handler = new CsvReverseHandler(filePath, delimiter, escape);
             DataTable dt = new DataTable();
-            CsvReverseHandler handler = new CsvReverseHandler(_filePath);
-            if (!_hasHeader)
+            var er = handler.GetEnumerator();
+            if (hasHeader)
             {
-                var first = handler.FirstOrDefault();
-                dt.Columns.AddRange(Parser.CsvParser.Split(first).Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                foreach (var item in handler)
+                var tmpQueue = new Queue<string[]>();
+                if (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(item);
+                    var elements = handler.Parser.Split(er.Current);
+                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
+                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    {
+                        tmpQueue.Enqueue(elements);
+                    }
 
+                }
+                while (er.MoveNext())
+                {
+                    var elements = handler.Parser.Split(er.Current);
+                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    {
+                        tmpQueue.Enqueue(elements);
+                        if (tmpQueue.Count > 1)
+                            dt.Rows.Add(tmpQueue.Dequeue());
+                    }
+                }
+                var header = tmpQueue.Dequeue();
+                for (int i = 0; i < header.Length; i++)
+                {
+                    dt.Columns[$"column{i}"].ColumnName = header[i];
+                }
+            }
+            else
+            {
+                if (er.MoveNext())
+                {
+                    var elements = handler.Parser.Split(er.Current);
+                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
                         dt.Rows.Add(elements);
                     }
                 }
-            }
-            else
-            {
-                var header = handler.Last();
-                dt.Columns.AddRange(Parser.CsvParser.Split(header).Select(h => new DataColumn(h)).ToArray());
-                for (int i = 0; i < handler.Count() - 1; i++)
+                while (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(handler.ElementAt(i));
+                    var elements = handler.Parser.Split(er.Current);
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
                         dt.Rows.Add(elements);
-                    }
                 }
             }
             return dt;
         }
-        public DataTable ConvertFromStream()
+        public DataTable ConvertFromStream(Stream fileStream, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
+            CsvReverseHandler handler = new CsvReverseHandler(fileStream, delimiter, escape);
             DataTable dt = new DataTable();
-            CsvReverseHandler handler = new CsvReverseHandler(_filePath);
-            if (!_hasHeader)
+            var er = handler.GetEnumerator();
+            if (hasHeader)
             {
-                var first = handler.FirstOrDefault();
-                dt.Columns.AddRange(Parser.CsvParser.Split(first).Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                foreach (var item in handler)
+                var tmpQueue = new Queue<string[]>();
+                if (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(item);
+                    var elements = handler.Parser.Split(er.Current);
+                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
+                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    {
+                        tmpQueue.Enqueue(elements);
+                    }
 
+                }
+                while (er.MoveNext())
+                {
+                    var elements = handler.Parser.Split(er.Current);
+                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
+                    {
+                        tmpQueue.Enqueue(elements);
+                        if (tmpQueue.Count > 1)
+                            dt.Rows.Add(tmpQueue.Dequeue());
+                    }
+                }
+                var header = tmpQueue.Dequeue();
+                for (int i = 0; i < header.Length; i++)
+                {
+                    dt.Columns[$"column{i}"].ColumnName = header[i];
+                }
+            }
+            else
+            {
+                if (er.MoveNext())
+                {
+                    var elements = handler.Parser.Split(er.Current);
+                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
                     {
                         dt.Rows.Add(elements);
                     }
                 }
-            }
-            else
-            {
-                var header = handler.Last();
-                dt.Columns.AddRange(Parser.CsvParser.Split(header).Select(h => new DataColumn(h)).ToArray());
-                for (int i = 0; i < handler.Count() - 1; i++)
+                while (er.MoveNext())
                 {
-                    var elements = Parser.CsvParser.Split(handler.ElementAt(i));
+                    var elements = handler.Parser.Split(er.Current);
                     if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
                         dt.Rows.Add(elements);
-                    }
                 }
             }
             return dt;
