@@ -27,9 +27,8 @@ namespace CsvTo
             {
                 var elements = csvHandler.Parser.Split(er.Current);
                 if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    cl.Append(elements);
+                   yield return elements;
             }
-            return cl;
         }
         public IEnumerable<string[]> ConvertFromStream(Stream fileStream, bool hasHeader = false, string delimiter = ",", string escape = "\"")
         {
@@ -44,9 +43,8 @@ namespace CsvTo
             {
                 var elements = csvHandler.Parser.Split(er.Current);
                 if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    cl.Append(elements);
+                    yield return elements;
             }
-            return cl;
         }
     }
 }
