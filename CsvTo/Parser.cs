@@ -8,14 +8,21 @@ namespace CsvTo
     internal sealed class Parser
     {
         string _delimiter;
+        char _delimiterChar;
         string _escape;
         Regex _delimiterRegex;
         Regex _escapeRegex;
         public Parser(string delimiter = ",", string escape = "\"")
         {
             _delimiter = delimiter;
+            _delimiterChar = char.Parse(delimiter);
             _escape = escape;
-            var delstr = @"(?:^""|" + _delimiter + @""")(""""|[\w\W]*?)(?=""" + _delimiter + @"|""$)|(?:^(?!"")|" + _delimiter + @"(?!""))([^,]*?)(?=$|" + _delimiter + @")|(\r\n|\n)";
+            //var delstr = @"(?:^""|" + _delimiter + @""")(""""|[\w\W]*?)(?=""" + _delimiter + @"|""$)|(?:^(?!"")|" + _delimiter + @"(?!""))([^,]*?)(?=$|" + _delimiter + @")|(\r\n|\n)";
+            //var linestr = @"(?m)^[^""\r\n]*(?:(?:""[^""]*"")+[^""\r\n]*)*";
+            //var delstr = "^(?:(?:\"((?:\"\"|[^\"])+)\"|([^,]*))(?:$|,))+$";
+            //var delstr = @"(?:^|,)(?=[^""]|("")?)""?((?(1)[^""]*|[^,""]*))""?(?=,|$)";
+            var delstr = "(?:" + _delimiter + "|\\n|^)(\"(?:(?:\"\")*[^\"]*)*\"|[^\"" + _delimiter + "\\n]*|(?:\\n|$))";
+
             _delimiterRegex = new Regex(delstr);
             _escapeRegex = new Regex(_escape);
         }
@@ -29,7 +36,11 @@ namespace CsvTo
         }
         internal string[] Split(string str)
         {
-            return DelimiterRegex.Split(str);
+            var ms = DelimiterRegex.Matches(str);
+            var res = new string[ms.Count];
+            for (int i = 0; i < ms.Count; i++)
+                res[i] = ms[i].Value.TrimStart(_delimiterChar);
+            return res;
         }
     }
 }
