@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net40;net45;net46;net47;net48;netcoreapp3.1;netcoreapp2.1;netcoreapp2.2;netcoreapp2.0;</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>This package is used to convert csv file or stream to datatable/array/Object(Ienumerable), support reverse convert , support csv with or without header, do not support type with complex type property.</Description>
     <PackageTags>csv, datatable, array, Object(Ienumerable), reverse</PackageTags>
