@@ -18,18 +18,81 @@ namespace CsvTo
             _filePath = filePath;
             Parser = new Parser(delimiter, escape);
         }
+
         public CsvHandler(Stream fileStream, string delimiter = ",", string escape = "\"")
         {
             _fileStream = fileStream;
             Parser = new Parser(delimiter, escape);
         }
+
         public IEnumerator<string> GetEnumerator()
         {
             if (!string.IsNullOrWhiteSpace(_filePath))
                 return FileHandler(_filePath);
             return StreamHandler(_fileStream);
         }
-        internal IEnumerator<string> FileHandler(string filePath)
+
+        internal string FirstLine()
+        {
+            if (!string.IsNullOrWhiteSpace(_filePath))
+                return FirstLineFromFile(_filePath);
+            return FirstLineFromStream(_fileStream);
+        }
+
+        string FirstLineFromFile(string filePath)
+        {
+            using (var reader = new StreamReader(filePath))
+            {
+                var sb = new StringBuilder();
+                while (!reader.EndOfStream)
+                {
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
+                    {
+                        sb.Append(l);
+                        break; // break after reading the first line
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+        string FirstLineFromStream(Stream fileStream)
+        {
+            using (var reader = new StreamReader(fileStream))
+            {
+                var sb = new StringBuilder();
+                while (!reader.EndOfStream)
+                {
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
+                    {
+                        sb.Append(l);
+                        break; // break after reading the first line
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+
+        IEnumerator<string> FileHandler(string filePath)
         {
             using (var reader = new StreamReader(filePath))
             {
@@ -55,7 +118,7 @@ namespace CsvTo
                 }
             }
         }
-        internal IEnumerator<string> StreamHandler(Stream fileStream)
+        IEnumerator<string> StreamHandler(Stream fileStream)
         {
             using (var reader = new StreamReader(fileStream))
             {

@@ -43,175 +43,23 @@ namespace CsvTo
         DataTable ToDataTableFromFile()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
-            DataTable dt = new DataTable();
-            var er = handler.GetEnumerator();
-            if (_hasHeader)
-            {
-                var tmpQueue = new Queue<string[]>();
-                if (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                    }
-
-                }
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                        if (tmpQueue.Count > 1)
-                            dt.Rows.Add(tmpQueue.Dequeue());
-                    }
-                }
-                var header = tmpQueue.Dequeue();
-                for (int i = 0; i < header.Length; i++)
-                {
-                    dt.Columns[$"column{i}"].ColumnName = header[i];
-                }
-            }
-            else
-            {
-                if (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        dt.Rows.Add(elements);
-                    }
-                }
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                        dt.Rows.Add(elements);
-                }
-            }
-            return dt;
+            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _hasHeader);
         }
         DataTable ToDataTableFromStream()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape);
-            DataTable dt = new DataTable();
-            var er = handler.GetEnumerator();
-            if (_hasHeader)
-            {
-                var tmpQueue = new Queue<string[]>();
-                if (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                    }
-
-                }
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                        if (tmpQueue.Count > 1)
-                            dt.Rows.Add(tmpQueue.Dequeue());
-                    }
-                }
-                var header = tmpQueue.Dequeue();
-                for (int i = 0; i < header.Length; i++)
-                {
-                    dt.Columns[$"column{i}"].ColumnName = header[i];
-                }
-            }
-            else
-            {
-                if (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(elements.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        dt.Rows.Add(elements);
-                    }
-                }
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                        dt.Rows.Add(elements);
-                }
-            }
-            return dt;
+            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _hasHeader);
         }
 
         IEnumerable<string[]> ToCollectionFromFile()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
-            if (!_hasHeader)
-            {
-                foreach (var item in handler)
-                {
-                    var elements = handler.Parser.Split(item);
-
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        yield return elements;
-                    }
-                }
-            }
-            else
-            {
-                var tmpQueue = new Queue<string[]>();
-                var er = handler.GetEnumerator();
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                        if (tmpQueue.Count > 1)
-                            yield return tmpQueue.Dequeue();
-                    }
-                }
-            }
+            return new CsvReverseConvertHandler().ToCollectionHandler(handler, _hasHeader);
         }
         IEnumerable<string[]> ToCollectionFromStream()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_fileStream,_delimiter, _escape);
-            if (!_hasHeader)
-            {
-                foreach (var item in handler)
-                {
-                    var elements = handler.Parser.Split(item);
-
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        yield return elements;
-                    }
-                }
-            }
-            else
-            {
-                var tmpQueue = new Queue<string[]>();
-                var er = handler.GetEnumerator();
-                while (er.MoveNext())
-                {
-                    var elements = handler.Parser.Split(er.Current);
-
-                    if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        tmpQueue.Enqueue(elements);
-                        if (tmpQueue.Count > 1)
-                            yield return tmpQueue.Dequeue();
-                    }
-                }
-            }
+            return new CsvReverseConvertHandler().ToCollectionHandler(handler, _hasHeader);
         }
     }
 }
