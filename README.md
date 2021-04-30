@@ -11,22 +11,19 @@ A Csv tool used for converting csv file or stream to datatable/object(IEnumerabl
 <br>        
  IEnumerable<string[]> c = converter.ToCollection();
  ### reverse read
-<br>
  var r_converter = new CsvTo.CsvReverseConverter(file);
 <br>
  DataTable r_dt = r_converter.ToDataTable();
 <br>
  IEnumerable<string[]> r_c = r_converter.ToCollection();
- ### non-generic converter will return value as string
+### generic converter will return DataTable with typed column / IEnumerable<T>
 #### forward read
-<br>
  var  g_converter_1 = new CsvTo.CsvConverter<Test1>(file1);
 <br>
  DataTable g_dt = g_converter_1.ToDataTable();
 <br>
  IEnumerable<Test1> g_c = g_converter_1.ToCollection();
-  ### reverse read
-<br>
+  #### reverse read
  var  g_r_converter_1 = new CsvTo.CsvReverseConverter<Test1>(file1);
 <br>
  DataTable g_r_c = g_r_converter_1.ToDataTable();
