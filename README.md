@@ -20,7 +20,7 @@ A Csv tool used for converting csv file or stream to datatable/object(IEnumerabl
 
  IEnumerable<string[]> r_c = r_converter.ToCollection();
  ```
-### generic converter will return DataTable with typed column / IEnumerable<T>
+### generic converter will return DataTable with typed column / IEnumerable\<Type\>
 #### forward read
   ```csharp
  var  g_converter_1 = new CsvTo.CsvConverter<Test1>(file1);
