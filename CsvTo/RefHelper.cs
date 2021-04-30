@@ -15,20 +15,20 @@ namespace CsvTo
             => Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
         // get properties that is not complex type and does not have a csvignore attribute
-        internal static Dictionary<string, (int index, Type ty)> GetProperties(Type type)
+        internal static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> GetProperties(Type type)
         {
-            Dictionary<string, (int index, Type ty)> props = new Dictionary<string, (int index, Type ty)>();
+            Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> props = new Dictionary<string, (int index, Type ty, PropertyDescriptor pd)>();
             var ps = TypeDescriptor.GetProperties(type);
             foreach (PropertyDescriptor p in ps)
             {
                 if (IsNotComplexType(p)) // filter out complex type
                 {
-                    var igAttr = p.PropertyType.GetCustomAttributes(typeof(CsvIgnoreAttribute), true).FirstOrDefault() as CsvIgnoreAttribute; // get csvignore attribute
+                    var igAttr = p.Attributes.OfType<CsvIgnoreAttribute>().FirstOrDefault(); // get csvignore attribute
 
                     if (igAttr == null)
                     {
-                        var clAttr = p.PropertyType.GetCustomAttributes(typeof(CsvColumnAttribute), true).FirstOrDefault() as CsvColumnAttribute; // get csvcolumn attribute
-                        props.Add(clAttr != null ? clAttr.Column.ToUpper() : p.Name.ToUpper(), (0, GetPropType(p)));
+                        var clAttr = p.Attributes.OfType<CsvColumnAttribute>().FirstOrDefault(); // get csvcolumn attribute
+                        props.Add(clAttr != null ? clAttr.Column.ToUpper() : p.Name.ToUpper(), (0, GetPropType(p), p));
                     }
                 }
             }
@@ -40,12 +40,12 @@ namespace CsvTo
             TypeConverter typeConverter = TypeDescriptor.GetConverter(type);
             try
             {
-               return  typeConverter.ConvertFromString(value);
+                return typeConverter.ConvertFromString(value);
             }
             catch (Exception)
             {
                 return GetDefaultValue(type);
-            } 
+            }
         }
 
         internal static T GetDefaultValue<T>()

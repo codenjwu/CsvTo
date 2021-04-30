@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -60,7 +61,7 @@ namespace CsvTo
             }
         }
 
-        internal DataTable ToDataTableHandler(CsvHandler csvHandler, Dictionary<string, (int index, Type ty)> props)
+        internal DataTable ToDataTableHandler(CsvHandler csvHandler, Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> props)
         {
             DataTable dt = new DataTable();
             var er = csvHandler.GetEnumerator();
@@ -72,11 +73,12 @@ namespace CsvTo
                 {
                     for (int i = 0; i < firstLine.Length; i++)
                     {
-                        if (!props.TryGetValue(firstLine[i].Trim().ToUpper(), out (int index, Type ty) value))
+                        firstLine[i] = firstLine[i].Trim().ToUpper();
+                        if (!props.TryGetValue(firstLine[i], out (int index, Type ty, PropertyDescriptor pd) value))
                             ignoreIndex.Add(i);
                         else
                         {
-                            props[firstLine[i]] = (i, props[firstLine[i]].ty);
+                            props[firstLine[i]] = (i, props[firstLine[i]].ty, props[firstLine[i]].pd);
                             dt.Columns.Add(new DataColumn(firstLine[i], value.ty));
                         }
                     }
@@ -93,25 +95,26 @@ namespace CsvTo
                     var data = new object[dt.Columns.Count];
                     foreach (var item in props)
                     {
-                        try
-                        {
-                            data[dt.Columns[item.Key].Ordinal] = RefHelper.ConvertFromString(item.Value.ty, elements[item.Value.index]);
-                        }
-                        catch (IndexOutOfRangeException ex)
-                        {
-                            data[dt.Columns[item.Key].Ordinal] = RefHelper.GetDefaultValue(item.Value.ty);
-                        }
-                        catch (Exception)
-                        {
-                            throw;
-                        }
+                        if (dt.Columns.IndexOf(item.Key) >= 0)
+                            try
+                            {
+                                data[dt.Columns[item.Key].Ordinal] = RefHelper.ConvertFromString(item.Value.ty, elements[item.Value.index]);
+                            }
+                            catch (IndexOutOfRangeException ex)
+                            {
+                                data[dt.Columns[item.Key].Ordinal] = RefHelper.GetDefaultValue(item.Value.ty);
+                            }
+                            catch (Exception)
+                            {
+                                throw;
+                            }
                     }
                     dt.Rows.Add(data);
                 }
             }
             return dt;
         }
-        internal IEnumerable<T> ToCollectionHandler<T>(CsvHandler csvHandler, Dictionary<string, (int index, Type ty)> props, PropertyInfo[] ps)
+        internal IEnumerable<T> ToCollectionHandler<T>(CsvHandler csvHandler, Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> props)
         {
             IEnumerable<string[]> cl = new List<string[]>();
             var er = csvHandler.GetEnumerator();
@@ -124,11 +127,12 @@ namespace CsvTo
                 {
                     for (int i = 0; i < firstLine.Length; i++)
                     {
-                        if (!props.TryGetValue(firstLine[i].Trim().ToUpper(), out (int index, Type ty) value))
+                        firstLine[i] = firstLine[i].Trim().ToUpper();
+                        if (!props.TryGetValue(firstLine[i], out (int index, Type ty, PropertyDescriptor pd) value))
                             ignoreIndex.Add(i);
                         else
                         {
-                            props[firstLine[i]] = (i, props[firstLine[i]].ty);
+                            props[firstLine[i]] = (i, props[firstLine[i]].ty, props[firstLine[i]].pd);
                             indexTypeMapping.Add(i, firstLine[i]);
                         }
                     }
@@ -147,14 +151,14 @@ namespace CsvTo
                         try
                         {
                             var pValue = elements[item.Key];
-                            var p = ps.FirstOrDefault(p => p.Name.Equals(item.Value, StringComparison.OrdinalIgnoreCase));
-                            p.SetValue(obj, RefHelper.ConvertFromString(p.PropertyType, pValue));
+                            var p = props.FirstOrDefault(pt => pt.Key.Equals(item.Value, StringComparison.OrdinalIgnoreCase));
+                            p.Value.pd.SetValue(obj, RefHelper.ConvertFromString(p.Value.ty, pValue));
                         }
                         catch (IndexOutOfRangeException ex)
                         {
                             var pValue = elements[item.Key];
-                            var p = ps.FirstOrDefault(p => p.Name.Equals(item.Value, StringComparison.OrdinalIgnoreCase));
-                            p.SetValue(obj, RefHelper.GetDefaultValue(props[item.Value].ty));
+                            var p = props.FirstOrDefault(pt => pt.Key.Equals(item.Value, StringComparison.OrdinalIgnoreCase));
+                            p.Value.pd.SetValue(obj, RefHelper.GetDefaultValue(p.Value.ty));
                         }
                         catch (Exception)
                         {

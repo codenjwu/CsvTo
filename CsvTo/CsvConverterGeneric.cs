@@ -18,12 +18,10 @@ namespace CsvTo
         string _escape;
         static Type _type;
         // cache property that is not complex type and does not have a csvignore attribute
-        static Dictionary<string, (int index, Type ty)> _props;
-        static PropertyInfo[] _ps;
+        static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> _props;
         static CsvConverter()
         {
             _type = typeof(T);
-            _ps = _type.GetProperties();
             _props = RefHelper.GetProperties(_type);
         }
         public CsvConverter(string filePath, bool hasHeader = true, string delimiter = ",", string escape = "\"")
@@ -73,12 +71,12 @@ namespace CsvTo
         IEnumerable<T> ToCollectionFromFile()
         {
             CsvHandler csvHandler = new CsvHandler(_filePath, _delimiter, _escape);
-            return new CsvConvertHandler().ToCollectionHandler<T>(csvHandler, _props, _ps);
+            return new CsvConvertHandler().ToCollectionHandler<T>(csvHandler, _props);
         }
         IEnumerable<T> ToCollectionFromStream()
         {
             CsvHandler csvHandler = new CsvHandler(_fileStream, _delimiter, _escape);
-            return new CsvConvertHandler().ToCollectionHandler<T>(csvHandler, _props, _ps);
+            return new CsvConvertHandler().ToCollectionHandler<T>(csvHandler, _props);
         }
     }
 }

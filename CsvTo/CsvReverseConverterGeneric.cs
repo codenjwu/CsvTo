@@ -18,7 +18,7 @@ namespace CsvTo
         static Type _type;
         static PropertyInfo[] _ps;
         // cache property that is not complex type and does not have a csvignore attribute
-        static Dictionary<string, (int index, Type ty)> _props;
+        static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> _props;
         static CsvReverseConverter()
         {
             _type = typeof(T);
@@ -26,7 +26,7 @@ namespace CsvTo
             _props = RefHelper.GetProperties(_type);
         }
 
-        public CsvReverseConverter(string filePath, bool hasHeader = false, string delimiter = ",", string escape = "\"")
+        public CsvReverseConverter(string filePath, bool hasHeader = true, string delimiter = ",", string escape = "\"")
         {
             if (!hasHeader)
                 throw new FormatException("Generic converter requests a header for csv file!");
@@ -35,7 +35,7 @@ namespace CsvTo
             _delimiter = delimiter;
             _escape = escape;
         }
-        public CsvReverseConverter(Stream fileStream, bool hasHeader = false, string delimiter = ",", string escape = "\"")
+        public CsvReverseConverter(Stream fileStream, bool hasHeader = true, string delimiter = ",", string escape = "\"")
         {
             if (!hasHeader)
                 throw new FormatException("Generic converter requests a header for csv file!");
@@ -71,12 +71,12 @@ namespace CsvTo
         IEnumerable<T> ToCollectionFromFile()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
-            return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props, _ps);
+            return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props);
         }
         IEnumerable<T> ToCollectionFromStream()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape);
-            return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props, _ps);
+            return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props);
         }
         
     }
