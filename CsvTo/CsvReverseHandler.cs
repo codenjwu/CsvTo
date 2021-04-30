@@ -29,7 +29,66 @@ namespace CsvTo
                 return FileHandler(_filePath);
             return StreamHandler(_fileStream);
         }
-        internal IEnumerator<string> FileHandler(string filePath)
+        internal string FirstLine()
+        {
+            if (!string.IsNullOrWhiteSpace(_filePath))
+                return FirstLineFromFile(_filePath);
+            return FirstLineFromStream(_fileStream);
+        }
+
+        string FirstLineFromFile(string filePath)
+        {
+            using (var reader = new StreamReader(filePath))
+            {
+                var sb = new StringBuilder();
+                while (!reader.EndOfStream)
+                {
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
+                    {
+                        sb.Append(l);
+                        break; // break after reading the first line
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+        string FirstLineFromStream(Stream fileStraem)
+        {
+            using (var reader = new StreamReader(fileStraem))
+            {
+                var sb = new StringBuilder();
+                while (!reader.EndOfStream)
+                {
+                    var l = reader.ReadLine();
+                    var ecount = Parser.EscapeCount(l);
+                    // this is a  new csv line
+                    if ((ecount == 0 && sb.Length == 0)  // aa,bb,cc\r\n
+                        || (ecount != 0 && ecount % 2 == 0 && sb.Length == 0)  // "a","""",c\r\n
+                        || (ecount % 2 != 0 && sb.Length > 0))  //a,bb,c"\r\n  
+                    {
+                        sb.Append(l);
+                        break; // break after reading the first line
+                    }
+                    // this is not a new csv line need to concat
+                    else // "a \r\n
+                    {
+                        sb.Append(l + Environment.NewLine);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
+        IEnumerator<string> FileHandler(string filePath)
         {
             var sb = new StringBuilder();
             var lines = ReadLine(filePath);
@@ -52,7 +111,7 @@ namespace CsvTo
                 }
             }
         }
-        internal IEnumerator<string> StreamHandler(Stream fileStream)
+        IEnumerator<string> StreamHandler(Stream fileStream)
         {
             var sb = new StringBuilder();
             var lines = ReadLine(fileStream);
@@ -75,7 +134,7 @@ namespace CsvTo
                 }
             }
         }
-        private IEnumerable<string> ReadLine(string path)
+        IEnumerable<string> ReadLine(string path)
         {
             using (var reader = new StreamReader(path))
             {
@@ -142,7 +201,7 @@ namespace CsvTo
                 } while (currentPosition > 0);
             }
         }
-        private IEnumerable<string> ReadLine(Stream fileStream)
+        IEnumerable<string> ReadLine(Stream fileStream)
         {
             using (var reader = new StreamReader(fileStream))
             {
@@ -213,173 +272,5 @@ namespace CsvTo
         {
             return GetEnumerator();
         }
-        //private string _filePath;
-        //private Stream _fileStream;
-
-        //public CsvReverseHandler(string filePath)
-        //{
-        //    _filePath = filePath;
-        //}
-        //public CsvReverseHandler(Stream fileStream)
-        //{
-        //    _fileStream = fileStream;
-        //}
-        //public IEnumerator<string> GetEnumerator()
-        //{
-        //    //yield return stk.Pop(); 
-        //    if(!string.IsNullOrWhiteSpace(_filePath))
-        //        return ReverseHandler(_filePath);
-        //    return ReverseHandler(_fileStream);
-        //}
-        ////Stack<string> stk = new Stack<string>();
-        //private IEnumerator<string> ReverseHandler(string filePath)
-        //{
-        //    using (var reader = new StreamReader(filePath))
-        //    {
-        //        var lastPosition = reader.BaseStream.Seek(0, SeekOrigin.End);
-        //        var currentPosition = lastPosition;
-
-        //        var bufSize = 64;
-        //        var buf = new char[64];
-        //        StringBuilder sb = new StringBuilder();
-        //        do
-        //        {
-        //            if (currentPosition < bufSize)
-        //            {
-        //                reader.DiscardBufferedData();
-        //                var maxRead = currentPosition;
-        //                var newBuf = new char[maxRead];
-        //                currentPosition = reader.BaseStream.Seek(0 - currentPosition, SeekOrigin.Current);
-        //                reader.ReadAsync(newBuf, 0, (int)maxRead).GetAwaiter().GetResult();
-        //                for (int i = newBuf.Length - 1; i >= 0; i--)
-        //                {
-        //                    if (newBuf[i] == '\r' || newBuf[i] == '\n')
-        //                    {
-        //                        if (sb.Length != 0)
-        //                        {
-        //                            //stk.Push(sb.ToString());
-        //                            //sb.Clear();
-        //                            yield return sb.ToString();
-        //                            sb.Clear();
-        //                        }
-        //                    }
-        //                    else if (i == 0)
-        //                    {
-        //                        sb.Insert(0, newBuf[i]);
-        //                        //stk.Push(sb.ToString());
-        //                        //sb.Clear();
-        //                        yield return sb.ToString();
-        //                        sb.Clear();
-        //                    }
-        //                    else
-        //                    {
-        //                        sb.Insert(0, newBuf[i]);
-        //                    }
-        //                }
-        //                currentPosition = -1;
-        //            }
-        //            else
-        //            {
-        //                reader.DiscardBufferedData();
-        //                currentPosition = reader.BaseStream.Seek(0 - bufSize, SeekOrigin.Current);
-        //                reader.ReadAsync(buf, 0, bufSize).GetAwaiter().GetResult();
-        //                currentPosition = reader.BaseStream.Seek(currentPosition - lastPosition, SeekOrigin.End);
-        //                for (int i = buf.Length - 1; i >= 0; i--)
-        //                {
-        //                    if (buf[i] == '\r' || buf[i] == '\n')
-        //                    {
-        //                        if (sb.Length != 0)
-        //                        {
-        //                            //stk.Push(sb.ToString());
-        //                            yield return sb.ToString();
-        //                            sb.Clear();
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        sb.Insert(0, buf[i]);
-        //                    }
-        //                }
-        //            }
-        //        } while (currentPosition > 0);
-        //    }
-        //}
-        //private IEnumerator<string> ReverseHandler(Stream fileStream)
-        //{
-        //    using (var reader = new StreamReader(fileStream))
-        //    {
-        //        var lastPosition = reader.BaseStream.Seek(0, SeekOrigin.End);
-        //        var currentPosition = lastPosition;
-
-        //        var bufSize = 64;
-        //        var buf = new char[64];
-        //        StringBuilder sb = new StringBuilder();
-        //        do
-        //        {
-        //            if (currentPosition < bufSize)
-        //            {
-        //                reader.DiscardBufferedData();
-        //                var maxRead = currentPosition;
-        //                var newBuf = new char[maxRead];
-        //                currentPosition = reader.BaseStream.Seek(0 - currentPosition, SeekOrigin.Current);
-        //                reader.ReadAsync(newBuf, 0, (int)maxRead).GetAwaiter().GetResult();
-        //                for (int i = newBuf.Length - 1; i >= 0; i--)
-        //                {
-        //                    if (newBuf[i] == '\r' || newBuf[i] == '\n')
-        //                    {
-        //                        if (sb.Length != 0)
-        //                        {
-        //                            //stk.Push(sb.ToString());
-        //                            //sb.Clear();
-        //                            yield return sb.ToString();
-        //                            sb.Clear();
-        //                        }
-        //                    }
-        //                    else if (i == 0)
-        //                    {
-        //                        sb.Insert(0, newBuf[i]);
-        //                        //stk.Push(sb.ToString());
-        //                        //sb.Clear();
-        //                        yield return sb.ToString();
-        //                        sb.Clear();
-        //                    }
-        //                    else
-        //                    {
-        //                        sb.Insert(0, newBuf[i]);
-        //                    }
-        //                }
-        //                currentPosition = -1;
-        //            }
-        //            else
-        //            {
-        //                reader.DiscardBufferedData();
-        //                currentPosition = reader.BaseStream.Seek(0 - bufSize, SeekOrigin.Current);
-        //                reader.ReadAsync(buf, 0, bufSize).GetAwaiter().GetResult();
-        //                currentPosition = reader.BaseStream.Seek(currentPosition - lastPosition, SeekOrigin.End);
-        //                for (int i = buf.Length - 1; i >= 0; i--)
-        //                {
-        //                    if (buf[i] == '\r' || buf[i] == '\n')
-        //                    {
-        //                        if (sb.Length != 0)
-        //                        {
-        //                            //stk.Push(sb.ToString());
-        //                            yield return sb.ToString();
-        //                            sb.Clear();
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        sb.Insert(0, buf[i]);
-        //                    }
-        //                }
-        //            }
-        //        } while (currentPosition > 0);
-        //    }
-        //}
-
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    return GetEnumerator();
-        //}
     }
 }

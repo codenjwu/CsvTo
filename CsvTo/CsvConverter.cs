@@ -48,78 +48,15 @@ namespace CsvTo
         /// <returns></returns>
         DataTable ToDataTableFromFile()
         {
-
             CsvHandler csvHandler = new CsvHandler(_filePath, _delimiter, _escape);
-            DataTable dt = new DataTable();
-            var er = csvHandler.GetEnumerator();
-            if (_hasHeader)
-            {
-                if (er.MoveNext())
-                {
-                    var firstLine = csvHandler.Parser.Split(er.Current);
-                    if (!firstLine.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        dt.Columns.AddRange(firstLine.Select((f, i) => new DataColumn(f)).ToArray());
-                    }
-                    else
-                        throw new FormatException("csv header should not be empty");
-                }
-            }
-            else
-            {
-                if (er.MoveNext())
-                {
-                    var firstLine = csvHandler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(firstLine.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!firstLine.All(e => string.IsNullOrWhiteSpace(e)))
-                        dt.Rows.Add(firstLine);
-                }
-            }
-            while (er.MoveNext())
-            {
-                var elements = csvHandler.Parser.Split(er.Current);
-                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    dt.Rows.Add(elements);
-            }
-            return dt;
+            return new CsvConvertHandler().ToDataTableHandler(csvHandler,_hasHeader);
         }
         DataTable ToDataTableFromStream()
         {
             CsvHandler csvHandler = new CsvHandler(_fileStream, _delimiter, _escape);
-            DataTable dt = new DataTable();
-            var er = csvHandler.GetEnumerator();
-            if (_hasHeader)
-            {
-                if (er.MoveNext())
-                {
-                    var firstLine = csvHandler.Parser.Split(er.Current);
-                    if (!firstLine.All(e => string.IsNullOrWhiteSpace(e)))
-                    {
-                        dt.Columns.AddRange(firstLine.Select((f, i) => new DataColumn(f)).ToArray());
-                    }
-                    else
-                        throw new FormatException("csv header should not be empty");
-                }
-            }
-            else
-            {
-                if (er.MoveNext())
-                {
-                    var firstLine = csvHandler.Parser.Split(er.Current);
-                    dt.Columns.AddRange(firstLine.Select((f, i) => new DataColumn($"column{i}")).ToArray());
-                    if (!firstLine.All(e => string.IsNullOrWhiteSpace(e)))
-                        dt.Rows.Add(firstLine);
-                }
-            }
-            while (er.MoveNext())
-            {
-                var elements = csvHandler.Parser.Split(er.Current);
-                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    dt.Rows.Add(elements);
-            }
-            return dt;
+            return new CsvConvertHandler().ToDataTableHandler(csvHandler, _hasHeader);
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -129,34 +66,13 @@ namespace CsvTo
         IEnumerable<string[]> ToCollectionFromFile()
         {
             CsvHandler csvHandler = new CsvHandler(_filePath, _delimiter, _escape);
-            IEnumerable<string[]> cl = new List<string[]>();
-            var er = csvHandler.GetEnumerator();
-            if (_hasHeader)
-            {
-                er.MoveNext();
-            }
-            while (er.MoveNext())
-            {
-                var elements = csvHandler.Parser.Split(er.Current);
-                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    yield return elements;
-            }
+            return new CsvConvertHandler().ToCollectionHandler(csvHandler,_hasHeader);
         }
         IEnumerable<string[]> ToCollectionFromStream()
         {
             CsvHandler csvHandler = new CsvHandler(_fileStream, _delimiter, _escape);
-            IEnumerable<string[]> cl = new List<string[]>();
-            var er = csvHandler.GetEnumerator();
-            if (_hasHeader)
-            {
-                er.MoveNext();
-            }
-            while (er.MoveNext())
-            {
-                var elements = csvHandler.Parser.Split(er.Current);
-                if (!elements.All(e => string.IsNullOrWhiteSpace(e)))
-                    yield return elements;
-            }
+            return new CsvConvertHandler().ToCollectionHandler(csvHandler, _hasHeader);
         }
+        
     }
 }
