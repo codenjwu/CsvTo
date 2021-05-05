@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;netstandard2.0;net47;net471;net472;net48;netcoreapp3.1;netcoreapp2.1;netcoreapp2.2;netcoreapp2.0;</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>This package is used to convert csv file or stream to datatable/Object(IEnumerable), support reverse convert , support csv with or without header, do not support type with complex type property.</Description>
+    <Description>This package is used to convert csv file or stream to datatable/object(IEnumerable), support reverse convert , support csv with or without header, do not support type with complex type property.</Description>
     <PackageTags>Csv, Datatable, Object(IEnumerable), Reverse</PackageTags>
     <Authors>Naijia Wu</Authors>
     <NeutralLanguage>English</NeutralLanguage>
@@ -17,7 +17,7 @@
     
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
