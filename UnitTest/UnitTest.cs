@@ -34,8 +34,8 @@ namespace UnitTest
 
             var g_dt_1 = g_converter_1.ToDataTable();
             var g_dt_2 = g_converter_2.ToDataTable();
-            var g_c_1 = g_r_converter_1.ToCollection().ToList();
-            var g_c_2 = g_r_converter_2.ToCollection().ToList();
+            var g_c_1 = g_converter_1.ToCollection().ToList();
+            var g_c_2 = g_converter_2.ToCollection().ToList();
 
             var g_r_dt_1 = g_r_converter_1.ToDataTable();
             var g_r_dt_2 = g_r_converter_2.ToDataTable();

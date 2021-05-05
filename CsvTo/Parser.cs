@@ -10,6 +10,7 @@ namespace CsvTo
         string _delimiter;
         char _delimiterChar;
         string _escape;
+        char[] _escapeChars;
         Regex _delimiterRegex;
         Regex _escapeRegex;
         public Parser(string delimiter = ",", string escape = "\"")
@@ -17,6 +18,7 @@ namespace CsvTo
             _delimiter = delimiter;
             _delimiterChar = char.Parse(delimiter);
             _escape = escape;
+            _escapeChars = escape.ToCharArray();
             //var delstr = @"(?:^""|" + _delimiter + @""")(""""|[\w\W]*?)(?=""" + _delimiter + @"|""$)|(?:^(?!"")|" + _delimiter + @"(?!""))([^,]*?)(?=$|" + _delimiter + @")|(\r\n|\n)";
             //var linestr = @"(?m)^[^""\r\n]*(?:(?:""[^""]*"")+[^""\r\n]*)*";
             //var delstr = "^(?:(?:\"((?:\"\"|[^\"])+)\"|([^,]*))(?:$|,))+$";
@@ -39,7 +41,11 @@ namespace CsvTo
             var ms = DelimiterRegex.Matches(str);
             var res = new string[ms.Count];
             for (int i = 0; i < ms.Count; i++)
+            {
                 res[i] = ms[i].Value.TrimStart(_delimiterChar);
+                if (res[i].StartsWith(_escape) && res[i].EndsWith(_escape))
+                    res[i] = res[i].Trim(_escapeChars);
+            }
             return res;
         }
     }
