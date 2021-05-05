@@ -98,11 +98,16 @@ namespace CsvTo
                         if (dt.Columns.IndexOf(item.Key) >= 0)
                             try
                             {
-                                data[dt.Columns[item.Key].Ordinal] = RefHelper.ConvertFromString(item.Value.ty, elements[item.Value.index]);
+                                var val = elements[item.Value.index];
+                                if (string.IsNullOrWhiteSpace(val) && item.Value.ty != typeof(string))
+                                    data[dt.Columns[item.Key].Ordinal] = DBNull.Value;
+                                else
+                                    data[dt.Columns[item.Key].Ordinal] = RefHelper.ConvertFromString(item.Value.ty, val);
                             }
                             catch (IndexOutOfRangeException ex)
                             {
-                                data[dt.Columns[item.Key].Ordinal] = RefHelper.GetDefaultValue(item.Value.ty);
+                                var df = RefHelper.GetDefaultValue(item.Value.pd.PropertyType);
+                                data[dt.Columns[item.Key].Ordinal] = df != null ? df : DBNull.Value;
                             }
                             catch (Exception)
                             {
