@@ -19,11 +19,13 @@ namespace CsvTo
         static PropertyInfo[] _ps;
         // cache property that is not complex type and does not have a csvignore attribute
         static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> _props;
+        static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> _dtprops;
         static CsvReverseConverter()
         {
             _type = typeof(T);
             _ps = _type.GetProperties();
             _props = RefHelper.GetProperties(_type);
+            _dtprops = RefHelper.GetPropertiesForDataTable(_type);
         }
 
         public CsvReverseConverter(string filePath, bool hasHeader = true, string delimiter = ",", string escape = "\"")
@@ -60,12 +62,12 @@ namespace CsvTo
         DataTable ToDataTableFromFile()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
-            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _props);
+            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _dtprops);
         }
         DataTable ToDataTableFromStream()
         {
             CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape);
-            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _props);
+            return new CsvReverseConvertHandler().ToDataTableHandler(handler, _dtprops);
         }
 
         IEnumerable<T> ToCollectionFromFile()

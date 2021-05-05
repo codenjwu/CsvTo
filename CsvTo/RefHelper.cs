@@ -28,13 +28,31 @@ namespace CsvTo
                     if (igAttr == null)
                     {
                         var clAttr = p.Attributes.OfType<CsvColumnAttribute>().FirstOrDefault(); // get csvcolumn attribute
+                        props.Add(clAttr != null ? clAttr.Column.ToUpper() : p.Name.ToUpper(), (0, p.PropertyType, p));
+                    }
+                }
+            }
+            return props;
+        }
+        internal static Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> GetPropertiesForDataTable(Type type)
+        {
+            Dictionary<string, (int index, Type ty, PropertyDescriptor pd)> props = new Dictionary<string, (int index, Type ty, PropertyDescriptor pd)>();
+            var ps = TypeDescriptor.GetProperties(type);
+            foreach (PropertyDescriptor p in ps)
+            {
+                if (IsNotComplexType(p)) // filter out complex type
+                {
+                    var igAttr = p.Attributes.OfType<CsvIgnoreAttribute>().FirstOrDefault(); // get csvignore attribute
+
+                    if (igAttr == null)
+                    {
+                        var clAttr = p.Attributes.OfType<CsvColumnAttribute>().FirstOrDefault(); // get csvcolumn attribute
                         props.Add(clAttr != null ? clAttr.Column.ToUpper() : p.Name.ToUpper(), (0, GetPropType(p), p));
                     }
                 }
             }
             return props;
         }
-
         internal static object ConvertFromString(Type type, string value)
         {
             TypeConverter typeConverter = TypeDescriptor.GetConverter(type);
