@@ -22,8 +22,7 @@ Version 3.0.0:
 - Verified multi-language support (Chinese, Japanese, Spanish)
 - Enhanced documentation and real-world usage examples
 - Full backward compatibility with 2.x versions
-    </PackageReleaseNotes>
-    <Copyright>Copyright (c) 2026 codenjwu</Copyright>
+    </PackageReleaseNotes> 
     <NeutralLanguage>en</NeutralLanguage>
     
     <!-- Repository Information -->
