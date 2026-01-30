@@ -7,8 +7,7 @@
     <!-- Package Information -->
     <PackageId>CsvTo</PackageId>
     <Version>3.0.0</Version>
-    <Authors>Naijia Wu</Authors>
-    <Company>Naijia Wu</Company>
+    <Authors>codenjwu</Authors>
     <Product>CsvTo</Product>
     <Description>A high-performance CSV conversion library for .NET. Convert CSV files or streams to DataTable/IEnumerable with support for forward/reverse reading, multiple encodings (UTF-8, UTF-16, etc.), custom delimiters, and generic type conversion. Supports international languages including English, Chinese, Japanese, Spanish, and more.</Description>
     <PackageTags>csv;datatable;converter;encoding;multilanguage;reverse;stream;utf8;parser;generic;performance</PackageTags>
