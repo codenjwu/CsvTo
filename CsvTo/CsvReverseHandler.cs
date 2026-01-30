@@ -11,17 +11,20 @@ namespace CsvTo
     {
         string _filePath = null;
         Stream _fileStream;
+        Encoding _encoding;
         internal Parser Parser;
 
-        public CsvReverseHandler(string filePath, string delimiter = ",", string escape = "\"")
+        public CsvReverseHandler(string filePath, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             _filePath = filePath;
             Parser = new Parser(delimiter, escape);
+            _encoding = encoding ?? Encoding.UTF8;
         }
-        public CsvReverseHandler(Stream fileStream, string delimiter = ",", string escape = "\"")
+        public CsvReverseHandler(Stream fileStream, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             _fileStream = fileStream;
             Parser = new Parser(delimiter, escape);
+            _encoding = encoding ?? Encoding.UTF8;
         }
         public IEnumerator<string> GetEnumerator()
         {
@@ -38,7 +41,7 @@ namespace CsvTo
 
         string FirstLineFromFile(string filePath)
         {
-            using (var reader = new StreamReader(filePath))
+            using (var reader = new StreamReader(filePath, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)
@@ -64,7 +67,7 @@ namespace CsvTo
         }
         string FirstLineFromStream(Stream fileStraem)
         {
-            using (var reader = new StreamReader(fileStraem))
+            using (var reader = new StreamReader(fileStraem, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)
@@ -136,7 +139,7 @@ namespace CsvTo
         }
         IEnumerable<string> ReadLine(string path)
         {
-            using (var reader = new StreamReader(path))
+            using (var reader = new StreamReader(path, _encoding))
             {
                 var lastPosition = reader.BaseStream.Seek(0, SeekOrigin.End);
                 var currentPosition = lastPosition;
@@ -203,7 +206,7 @@ namespace CsvTo
         }
         IEnumerable<string> ReadLine(Stream fileStream)
         {
-            using (var reader = new StreamReader(fileStream))
+            using (var reader = new StreamReader(fileStream, _encoding))
             {
                 var lastPosition = reader.BaseStream.Seek(0, SeekOrigin.End);
                 var currentPosition = lastPosition;

@@ -11,18 +11,21 @@ namespace CsvTo
     {
         string _filePath = null;
         Stream _fileStream;
+        Encoding _encoding;
         internal Parser Parser;
 
-        public CsvHandler(string filePath, string delimiter = ",", string escape = "\"")
+        public CsvHandler(string filePath, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             _filePath = filePath;
             Parser = new Parser(delimiter, escape);
+            _encoding = encoding ?? Encoding.UTF8;
         }
 
-        public CsvHandler(Stream fileStream, string delimiter = ",", string escape = "\"")
+        public CsvHandler(Stream fileStream, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             _fileStream = fileStream;
             Parser = new Parser(delimiter, escape);
+            _encoding = encoding ?? Encoding.UTF8;
         }
 
         public IEnumerator<string> GetEnumerator()
@@ -41,7 +44,7 @@ namespace CsvTo
 
         string FirstLineFromFile(string filePath)
         {
-            using (var reader = new StreamReader(filePath))
+            using (var reader = new StreamReader(filePath, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)
@@ -67,7 +70,7 @@ namespace CsvTo
         }
         string FirstLineFromStream(Stream fileStream)
         {
-            using (var reader = new StreamReader(fileStream))
+            using (var reader = new StreamReader(fileStream, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)
@@ -94,7 +97,7 @@ namespace CsvTo
 
         IEnumerator<string> FileHandler(string filePath)
         {
-            using (var reader = new StreamReader(filePath))
+            using (var reader = new StreamReader(filePath, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)
@@ -120,7 +123,7 @@ namespace CsvTo
         }
         IEnumerator<string> StreamHandler(Stream fileStream)
         {
-            using (var reader = new StreamReader(fileStream))
+            using (var reader = new StreamReader(fileStream, _encoding))
             {
                 var sb = new StringBuilder();
                 while (!reader.EndOfStream)

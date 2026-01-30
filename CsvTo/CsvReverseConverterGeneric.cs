@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace CsvTo
 {
@@ -15,6 +16,7 @@ namespace CsvTo
         bool _hasHeader;
         string _delimiter;
         string _escape;
+        Encoding _encoding;
         static Type _type;
         static PropertyInfo[] _ps;
         // cache property that is not complex type and does not have a csvignore attribute
@@ -28,7 +30,7 @@ namespace CsvTo
             _dtprops = RefHelper.GetPropertiesForDataTable(_type);
         }
 
-        public CsvReverseConverter(string filePath, bool hasHeader = true, string delimiter = ",", string escape = "\"")
+        public CsvReverseConverter(string filePath, bool hasHeader = true, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             if (!hasHeader)
                 throw new FormatException("Generic converter requests a header for csv file!");
@@ -36,8 +38,9 @@ namespace CsvTo
             _hasHeader = hasHeader;
             _delimiter = delimiter;
             _escape = escape;
+            _encoding = encoding ?? Encoding.UTF8;
         }
-        public CsvReverseConverter(Stream fileStream, bool hasHeader = true, string delimiter = ",", string escape = "\"")
+        public CsvReverseConverter(Stream fileStream, bool hasHeader = true, string delimiter = ",", string escape = "\"", Encoding encoding = null)
         {
             if (!hasHeader)
                 throw new FormatException("Generic converter requests a header for csv file!");
@@ -45,6 +48,7 @@ namespace CsvTo
             _hasHeader = hasHeader;
             _delimiter = delimiter;
             _escape = escape;
+            _encoding = encoding ?? Encoding.UTF8;
         }
         public DataTable ToDataTable()
         {
@@ -61,23 +65,23 @@ namespace CsvTo
 
         DataTable ToDataTableFromFile()
         {
-            CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
+            CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape, _encoding);
             return new CsvReverseConvertHandler().ToDataTableHandler(handler, _dtprops);
         }
         DataTable ToDataTableFromStream()
         {
-            CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape);
+            CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape, _encoding);
             return new CsvReverseConvertHandler().ToDataTableHandler(handler, _dtprops);
         }
 
         IEnumerable<T> ToCollectionFromFile()
         {
-            CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape);
+            CsvReverseHandler handler = new CsvReverseHandler(_filePath, _delimiter, _escape, _encoding);
             return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props);
         }
         IEnumerable<T> ToCollectionFromStream()
         {
-            CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape);
+            CsvReverseHandler handler = new CsvReverseHandler(_fileStream, _delimiter, _escape, _encoding);
             return new CsvReverseConvertHandler().ToCollectionHandler<T>(handler, _props);
         }
         

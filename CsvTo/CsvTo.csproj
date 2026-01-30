@@ -1,24 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netstandard2.0;net47;net471;net472;net48;netcoreapp3.1;netcoreapp2.1;netcoreapp2.2;netcoreapp2.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net47;net471;net472;net48;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>This package is used to convert csv file or stream to datatable/object(IEnumerable), support reverse convert , support csv with or without header, do not support type with complex type property.</Description>
-    <PackageTags>Csv, Datatable, Object(IEnumerable), Reverse</PackageTags>
-    <Authors>Naijia Wu</Authors>
-    <NeutralLanguage>English</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageId>CsvTo</PackageId>
     
+    <!-- Package Information -->
+    <PackageId>CsvTo</PackageId>
+    <Version>3.0.0</Version>
+    <Authors>Naijia Wu</Authors>
+    <Company>Naijia Wu</Company>
+    <Product>CsvTo</Product>
+    <Description>A high-performance CSV conversion library for .NET. Convert CSV files or streams to DataTable/IEnumerable with support for forward/reverse reading, multiple encodings (UTF-8, UTF-16, etc.), custom delimiters, and generic type conversion. Supports international languages including Chinese, Japanese, Spanish, and more.</Description>
+    <PackageTags>csv;datatable;converter;encoding;multilanguage;reverse;stream;utf8;parser;generic;performance</PackageTags>
+    <PackageProjectUrl>https://github.com/codenjwu/CsvTo</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>
+Version 3.0.0:
+- Added 9 comprehensive examples demonstrating all library features
+- Added performance benchmarking project with BenchmarkDotNet
+- Expanded test coverage to 100+ test scenarios
+- Verified multi-language support (Chinese, Japanese, Spanish)
+- Enhanced documentation and real-world usage examples
+- Full backward compatibility with 2.x versions
+    </PackageReleaseNotes>
+    <Copyright>Copyright (c) 2026 Naijia Wu</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+    
+    <!-- Repository Information -->
     <RepositoryUrl>https://github.com/codenjwu/CsvTo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     
+    <!-- SourceLink -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    
-    <Version>2.0.3</Version>
   </PropertyGroup>
+  
+  <!-- Include README in package -->
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\CHANGELOG.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
